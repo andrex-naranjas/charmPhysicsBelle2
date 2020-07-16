@@ -62,7 +62,7 @@ void FitCharm::execute(Config config){
 
   //build Jhonson Su pdf
   RooRealVar  mu_john("john_mu","mu para",0.1459,0.14,0.16);
-  RooRealVar  lambda_john("john_lamda","lambda para",0,0,0.002);//sigma
+  RooRealVar  lambda_john("john_lamda","lambda para",0,0,0.0025);//sigma
   RooRealVar  gamma_john("john_gamma","gamma para",1,1,5);
   RooRealVar  delta_john("john_delta","delta para",0,5,10);
   RooJohnson john("john","model john",x, mu_john,lambda_john,gamma_john,delta_john,0.139570);
@@ -101,7 +101,7 @@ void FitCharm::execute(Config config){
   total.plotOn(xframe, LineColor(kRed));
 
   TCanvas c;
-  c.SetLogy();
+  //c.SetLogy();
   xframe->Draw();
   c.SaveAs("plot_data.pdf");
 
