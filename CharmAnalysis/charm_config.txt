@@ -1,0 +1,9 @@
+NormPlots = False
+DoOnlyPlots = True
+InputFileDir = /u/user/andres/belle/charm/analysis/local/Files
+OutputFileDir = /u/user/andres/belle/charm/analysis/CharmAnalysis/Files/
+NumberOfEvents = -1
+xBinsCw  = 40000 45000 50000 55000 60000 65000 70000 200000
+
+OnlyMC = False
+OnlyData = False
