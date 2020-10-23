@@ -19,11 +19,14 @@ PrintPlots::~PrintPlots(){}
 void PrintPlots::initialize(Config config)
 {
 
-  fdata     = new TFile("/u/user/andres/belle/charm/analysis/ControlPlots/CharmAnalysis/data.root");
+  fdata_rs    = new TFile((config.OutputFileDir+"total/data_"+config.Channel+"_rs.root").c_str());
+  fdata_ws    = new TFile((config.OutputFileDir+"total/data_"+config.Channel+"_ws.root").c_str());
 
-  // fsignal   = new TFile("/u/user/andres/belle/charm/scripts/ControlPlots/CharmAnalysis/ccbar.root");
+  ftotmc_rs   = new TFile((config.OutputFileDir+"total/total_"+config.Channel+"_rs.root").c_str());
+  ftotmc_ws   = new TFile((config.OutputFileDir+"total/total_"+config.Channel+"_ws.root").c_str());
+
+
   // fccbar    = new TFile("/u/user/andres/belle/charm/scripts/ControlPlots/CharmAnalysis/ccbar.root");
-
   // fcharged  = new TFile("/u/user/andres/belle/charm/scripts/ControlPlots/CharmAnalysis/charged.root");
   // fddbar    = new TFile("/u/user/andres/belle/charm/scripts/ControlPlots/CharmAnalysis/ddbar.root");
   // fmixed    = new TFile("/u/user/andres/belle/charm/scripts/ControlPlots/CharmAnalysis/mixed.root");
@@ -36,18 +39,90 @@ void PrintPlots::initialize(Config config)
 
 void PrintPlots::execute(Config config){
 
-  std::vector<std::string> kine, nplots;
+  std::vector<std::string> kine, dataMC, sign;
   kine.push_back("d0_m");
   kine.push_back("deltaM");
+  dataMC.push_back("data");
+  dataMC.push_back("MC");
+  sign.push_back("rs");
+  sign.push_back("ws");
 
-  // kine.push_back("pi0_m");
-  // kine.push_back("d0_q");
+  for(int i=0; i<kine.size(); i++)
+    for(int j=0; j<dataMC.size();j++)
+      for(int k=0; k<sign.size(); k++)
+	SimplePlot(config,kine[i],dataMC[j], sign[k]);
+         			     
+  return;
+}
 
-  nplots.push_back("dataMC"); nplots.push_back("MC");
+
+void PrintPlots::SimplePlot(Config config, std::string kine, std::string dataMC, std::string sign){
+
+  TH1D *hKine;
+  if(dataMC == "data"){
+    if(sign == "rs") hKine = (TH1D*)fdata_rs ->GetObjectUnchecked(("h_"+kine).c_str());
+    if(sign == "ws") hKine = (TH1D*)fdata_ws ->GetObjectUnchecked(("h_"+kine).c_str());
+  }else if(dataMC == "MC"){
+    if(sign == "rs") hKine = (TH1D*)ftotmc_rs->GetObjectUnchecked(("h_"+kine).c_str());
+    if(sign == "ws") hKine = (TH1D*)ftotmc_ws->GetObjectUnchecked(("h_"+kine).c_str());}
+
+  std::string xlabel,ylabel; double xlow=0., xhigh=0., yhigh=0.;
+  bool yRange=false;
+
+  TString leglabel;
+  leglabel="MC W#rightarrow#mu#nu";
+
+  TString lumi;
+  lumi="9.6";
+
+  TString naming="";
+  if(dataMC=="data") naming = "Data";
+  if(dataMC=="MC")   naming = "MC";
+
+  TCanvas *c = new TCanvas("canvas","canvas",550,500);
+  TLegend* leg = new TLegend(0.7,0.825,0.9,0.575,"");
+  leg->SetBorderSize(0); leg->SetTextSize(0.0375); leg->SetFillColor(0);
+
+  leg->AddEntry(hKine,    "#bf{#scale[0.85]{"+naming+"}}","L");//P for data (points)
   
-  for(int j=0; j<kine.size();j++)
-    WStackPlot(config,kine[j],"calib");
-       			     
+  if(kine=="d0_m")  {xlabel="M(K#pi#pi^{0}) [GeV]"; xlow=1.8, xhigh=1.95;}
+  if(kine=="deltaM"){xlabel="#DeltaM [GeV]"; xlow=0.14; xhigh=0.16;}
+  if(kine=="pi0_m") {xlabel="M(#pi^{0}) [GeV]"; xlow=0.11; xhigh=0.15;}
+  if(kine=="d0_q")  {xlabel="Q [GeV]"; xlow=0.; xhigh=12;}
+  ylabel = "Entries";
+
+  plotAxisLine(hKine,kBlue+2,kBlue+2,8,0.5,"",xlabel.c_str(),ylabel.c_str(),true,xlow,xhigh,false,0.,yhigh);
+
+  TPaveText *box;
+  box = new TPaveText(0.7,0.845,0.855,0.96,"NDC");
+  box->SetBorderSize(0); box->SetTextSize(0.035); box->SetFillColor(0);
+  box->AddText("#bf{#it{#scale[1.125]{Belle II}}} Work in progress");
+  box->AddText("#int L="+lumi+"fb^{-1}");
+  c->cd();
+
+  //main panel
+  TPad *pad = new TPad("pad","pad",0,0,1,1);
+  pad->SetTicks(1,1); 
+  pad->Draw();
+  pad->cd();
+  pad->SetLeftMargin(0.1155);
+  pad->SetRightMargin(0.03);
+  pad->SetTopMargin(0.02);
+  pad->SetBottomMargin(0.1);
+
+  hKine->SetTitle("");
+  hKine->GetXaxis()->SetTitleOffset(1.45);
+  hKine->SetLineWidth(2);
+  hKine->Draw("hist");
+
+  pad->Update();
+  pad->Modified();
+  box->Draw();
+  leg->Draw();
+  c->cd();
+
+  c->Print(("./plots/simple_"+dataMC+"_"+config.Channel+"_"+kine+"_"+sign+".pdf").c_str());
+
   return;
 }
 
@@ -58,7 +133,7 @@ void PrintPlots::WStackPlot(Config config, std::string kine, std::string option)
 
   // hSignal   = (TH1D*)fsignal  ->GetObjectUnchecked(("h_"+kine).c_str());
   // hCcbar    = (TH1D*)fccbar   ->GetObjectUnchecked(("h_"+kine).c_str());
-  hData     = (TH1D*)fdata    ->GetObjectUnchecked(("h_"+kine).c_str());//->Clone("hData");  
+  hData     = (TH1D*)fdata_ws    ->GetObjectUnchecked(("h_"+kine).c_str());//->Clone("hData");  
   // sum       = (TH1D*)hSignal  ->Clone("sum");  
   // hCharged  = (TH1D*)fcharged ->GetObjectUnchecked(("h_"+kine).c_str());
   // hDdbar    = (TH1D*)fddbar   ->GetObjectUnchecked(("h_"+kine).c_str());
@@ -239,7 +314,7 @@ void PrintPlots::WStackPlot(Config config, std::string kine, std::string option)
   std::string boson;
   boson="wplus";
 
-  c->Print(("./plots/stack_"+boson+"_"+kine+".pdf").c_str());
+  c->Print(("./plots/august_"+boson+"_"+kine+".pdf").c_str());
   
   //  delete hData; delete hWmunu; delete hWtaunu; delete hZmumu; delete hZtautau; delete hTtbar; delete sum;
   //  delete hs;

@@ -47,9 +47,14 @@ class PrintPlots{
   TFile *fdata, *fsignal, *fccbar, *fcharged, *fddbar;
   TFile *fmixed, *fssbar, *ftaupair, *fuubar;
 
+  TFile *fdata_rs, *fdata_ws, *ftotmc_rs, *ftotmc_ws;
+
   TFile *wzdata, *wzmcor, *wzmc, *wzmccal, *wzmcfull;
   TFile *wtaunu, *zmumu, *ztautau, *ttbar;
   TFile *pwtaunu, *pzmumu, *pztautau, *pttbar;
+
+  virtual void SimplePlot(Config config, std::string kine, 
+			  std::string dataMC, std::string sign);
 
   virtual void WStackPlot(Config config, std::string kine, std::string option);
   

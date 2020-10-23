@@ -32,6 +32,16 @@ void LoadSettings::loadConfig(Config& config, std::string fileName){
        sin >> config.InputFileDir;
     else if (line.find("OutputFileDir") != -1)
        sin >> config.OutputFileDir;
+    else if (line.find("Channel") != -1)
+       sin >> config.Channel;
+    else if (line.find("Channel") != -1)
+       sin >> config.Channel;
+    else if (line.find("Sign") != -1)
+       sin >> config.Sign;
+    else if (line.find("PrintPlots") != -1)
+       sin >> config.PrintPlots;
+    else if (line.find("DoRooFit") != -1)
+       sin >> config.DoRooFit;
     else if (line.find("NumberOfEvents") != -1)
        sin >> config.NumberOfEvents;
     else if (line.find("xBinsCw") != -1){

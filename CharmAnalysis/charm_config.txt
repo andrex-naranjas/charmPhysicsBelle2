@@ -1,7 +1,11 @@
 NormPlots = False
-DoOnlyPlots = True
+DoOnlyPlots = False
 InputFileDir = /u/user/andres/belle/charm/analysis/local/Files
 OutputFileDir = /u/user/andres/belle/charm/analysis/CharmAnalysis/Files/
+Channel = kpipi0
+Sign = Right
+PrintPlots = False
+DoRooFit = False
 NumberOfEvents = -1
 xBinsCw  = 40000 45000 50000 55000 60000 65000 70000 200000
 
