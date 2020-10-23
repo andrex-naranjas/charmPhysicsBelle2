@@ -11,6 +11,10 @@ struct Config{
   std::string DoOnlyPlots;
   std::string InputFileDir;
   std::string OutputFileDir;
+  std::string Channel;
+  std::string Sign;
+  std::string PrintPlots;
+  std::string DoRooFit;
   long int NumberOfEvents;
 
   std::vector<double> xBinsCw;

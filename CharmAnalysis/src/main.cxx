@@ -1,4 +1,5 @@
 #include "CharmAnalysis.h"
+#include "CharmStrangeAnalysis.h"
 
 #include "ConfigSettings.h"
 #include "LoadSettings.h"
@@ -19,32 +20,43 @@ int main(int argc, char** argv){
     return 1;
   }
 
+  std::vector<std::string> samples; samples.push_back("ccbar");// samples.push_back("data");
+  // samples.push_back("charged");  samples.push_back("ddbar");
+  // samples.push_back("mixed");    samples.push_back("ssbar");
+  // samples.push_back("taupair");  samples.push_back("uubar");
+  // samples.push_back("3500420000");     samples.push_back("3700001000");
+
   //Get the cofiguration from configFile.txt
   LoadSettings *settings = new LoadSettings();
   Config config;
   settings->loadConfig(config, argv[1]);
 
-  //do analysis
-  // CharmAnalysis c0(config, "signal");   c0.Loop();
-  // CharmAnalysis c1(config, "ccbar");    c1.Loop();
-  // CharmAnalysis c2(config, "charged");  c2.Loop();
-  // CharmAnalysis c4(config, "ddbar");    c4.Loop();
-  // CharmAnalysis c5(config, "mixed");    c5.Loop();
-  // CharmAnalysis c6(config, "ssbar");    c6.Loop();
-  // CharmAnalysis c7(config, "taupair");  c7.Loop();
-  // CharmAnalysis c8(config, "uubar");    c8.Loop();
-  // CharmAnalysis c9(config, "data");     c9.Loop();
 
-  // PrintPlots *plots = new PrintPlots();
-  // plots->initialize(config);
-  // plots->setstyle();
-  // plots->execute(config);
+  if(config.DoOnlyPlots=="False"){  //do analysis
+    if(config.Channel == "kpi" or config.Channel == "kpipi0")
+      for(int iSamples=0; iSamples<samples.size(); iSamples++){
+	CharmAnalysis r(config, samples[iSamples]); r.Loop();}
 
-  FitCharm *fit = new FitCharm();
-  fit->initialize(config);
-  fit->execute(config);
-  fit->finalize();
+    if(config.Channel == "kkpi" or config.Channel == "kpipi")
+      for(int iSamples=0; iSamples<samples.size(); iSamples++){
+	CharmStrangeAnalysis r(config, samples[iSamples]); r.Loop();}    
+  }
+
+
+  if(config.PrintPlots=="True"){
+    PrintPlots *plots = new PrintPlots();
+    plots->initialize(config);
+    plots->setstyle();
+    plots->execute(config);
+  }
+
+  if(config.DoRooFit=="True"){
+    FitCharm *fit = new FitCharm();
+    fit->initialize(config);
+    fit->setstyle();
+    fit->execute(config);
+    fit->finalize();
+  }
   
-
   return 0;
 }
