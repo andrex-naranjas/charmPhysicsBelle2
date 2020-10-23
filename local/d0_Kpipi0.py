@@ -9,7 +9,6 @@ import basf2 as b2
 import modularAnalysis as ma
 
 
-
 if len(sys.argv) != 2:
     sys.exit('Provide channel. Try again!')
 
